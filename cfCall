@@ -1,5 +1,5 @@
 /*
-cfCall( ExpressionCode ; Params )
+cfCall( ExpressionCode ; Params ) v1.5
 Evalue une formule, représentée sous forme d'une chaîne de caractères, correspondant à une fonction exploitant la syntaxe FileMaker et pouvant comporter un nombre illimité de paramètres.
 *
 cfCall fait partie de la bibliothèque de fonctions FMdynamix ( cf @link )
