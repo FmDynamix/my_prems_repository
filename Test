@@ -1,5 +1,5 @@
 
-Tiens je peux changer
+Tiens je peux changer, aussi :)
 //cfCall ( Expression ; ParamS ) v_1.0
 // cfCall permet d'evaluer un calcul en lui passant un nombre x de parametre grace à  #load ( myParam ; Param )
 // le resulta de ParamS sont une suite de nombre qui correspondent à la répétition de 2 variables multivaluées
