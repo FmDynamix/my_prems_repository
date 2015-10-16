@@ -1,5 +1,5 @@
 /*
-cfCall( ExpressionCode ; ParamS )
+cfCall( ExpressionCode ; Parameters )
 Evalue une formule, représentée sous forme d'une chaîne de caractères, correspondant à une fonction
 exploitant la syntaxe FileMaker et pouvant comporter un nombre illimité de paramètres.
 *
@@ -77,7 +77,7 @@ présente dans la bibliothèque interne du fichier FileMaker.
 On peut exploiter cet index pour lancer cette fonction personnalisée, au travers la fonction dédiée.
 L'utilitaire de gestion du module mod_CustomFunctions vous permet de constituer ces index.
 
-cfCallFunctionByIndex ( ExpressionCode ; ParamS ) // a réfléchir oui pour que l'appel de cette fonction
+cfCallFunctionByIndex ( ExpressionCode ; Parameters ) // a réfléchir oui pour que l'appel de cette fonction
 ne déclenche pas d'erreur
 )
 )
@@ -88,12 +88,12 @@ Il faur revoir cette fonction à mon avis, elle est mal construite. <--- oui c'e
 y aura un probleme pour importer la fonction si les fonctions n'existent pas
 et me semble pas que l'on ne peut pas gérer par calcul la liste des fonctions perso
 
-On doit pouvoir invoquer ça sous la forme cfCall ( cfCallFunctionByID ( $$_nomFonction ) ; ParamS )
+On doit pouvoir invoquer ça sous la forme cfCall ( cfCallFunctionByID ( $$_nomFonction ) ; Parameters )
 le but étant que dans le dev, l'appel aux cfs soit tout pareil partout :
 cfCall ( $$_nomFonction ; ParamS & paramS )
 car si un jour je préfère remplir $$_nomFonction par son num et plus son code, c'est cfCall qui doit s'en occuper et
-l'on ne doit pas ouvrir le dev pour changer les cfCall ( $$_nomFonction ; ParamS & paramS ) en 
-cfCall ( cfCallFunctionByIndex ( $$_nomFonction ) ; ParamS & paramS )
+l'on ne doit pas ouvrir le dev pour changer les cfCall ( $$_nomFonction ; Parameters & Parameters ) en 
+cfCall ( cfCallFunctionByIndex ( $$_nomFonction ) ; Parameters & Parameters )
 enfin, je crois non ?
 
 */
