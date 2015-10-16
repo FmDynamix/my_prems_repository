@@ -1,0 +1,81 @@
+/*
+cfCall( ExpressionCode ; Params )
+Evalue une formule, représentée sous forme d'une chaîne de caractères, correspondant à une fonction exploitant la syntaxe FileMaker et pouvant comporter un nombre illimité de paramètres.
+*
+cfCall fait partie de la bibliothèque de fonctions FMdynamix ( cf @link )
+cfCall est la fonction clef du module mod_CustomFunctions, qui permet :
+- la centralisation de toutes les fonctions personnalisées dans un seul fichier FileMaker.
+- la synchronisation de la bibliothèque des fonctions personnalisées via un repository externe ( Github, Google Code, etc. ).
+- l'exploitation d'un ensemble de fonctions utilitaires pour une maintenance plus fine de vos fonctions personnalisées.
+*
+cfCall a été principalement conçue pour exécuter un bloc de code correspondant à une autre fonction personnalisée :
+- quelque soit le nombre de paramètres qu'elle comporte.
+- présente ou pas dans la librairie interne des fonctions du fichier FileMaker. 
+- récursive ou standard.
+*
+Fonctions de la bibliothèque FMdynamix :
+La fonction cfGetFunctionExpression ( FunctionName ) est intégrée au code de la fonction cfCall et doit donc être intégrée également ( cf @see )
+La fonction #load ( paramDescription ; Param ) n'est pas indispensable mais il est cependant fortement recommandé de l'utiliser ( cf @see ).
+*
+Par extension, cfCall peut exécuter toute formule représentée sous la forme d'une chaîne de caractères, utilisant des fonctions de FileMaker, sous réserve que cette expression soit au préalable encapsulée dans un bloc de code supérieur comprenant une fonction Définir et reposant sur la convention syntaxique définie dans la bibliothèque FMdynamix( cf @see )
+*
+Si vous n'avez pas choisi d'externaliser toutes vos fonctions personnalisées, vous pouvez également les appeler au travers un index que vous aurez préalablement constitué, et la fonction cfGetFunctionExpression( FonctionName )
+	
+@link http://www.tictac.fr/CoinFileMaker/FMdynamix.html
+@link http://www.tictac.fr/CoinFileMaker/cfCustomFunctionsModule.html
+@author Agnès Barouh
+@version v2.1
+@since FMP12
+@see "FMdynamix Text Formulas Coding Standards"
+La juste évaluation d'une expression intégrée au paramètre Expression dépend du respect de quelques standards de codification définis dans ce document disponible en téléchargement ( cf @link ).
+La bibliothèque FMdynamyx comprend une fonction utilitaire capable d'appliquer ces transformations : cfsetCodeSyntax( FunctionCodeAsText )
+@see cfgetFunctionExpressionByIndex ( FunctionIndex )
+L'utilisation du module mod_CustomFunctions n'interdit en rien de conserver quelques fonctions personnalisées dans la libraire interne de FileMaker. Vous pouvez alors directement appeler la fonction en question . Dans ce cas le processus exploitera un index pour restituer un code alternatif qui ne sera plus traité par la fonction Evaluation() pour des performances meilleures.
+@see #load ( paramDescription ; Param ) 
+Cette fonction injecte les arguments pour chaque paramètre référencé dans le code d'exécution stocké au format texte dans le paramètre Expression de cfCall
+	
+@param Expression Code fonctionnel/formule à évaluer, structurée selon la convention décrite dans @see
+@param Params Paramètres nécessaires à l'évaluation de l'expression, assemblés en exploitant la fonction #load
+@return résultat évalué du paramètre Expression après inclusion des paramètres attendus
+@throws exception si l'expression ne peut pas être évaluée
+@description cfCall ( $$MyFunction ; #load( myparam ; param ) { & #load() & #load()  ... })
+@example Une fonction NumRange ( From ; To ) peut également être appelé ainsi :
+cfCall ( $$NumRange ; #load ( "From" ; 10 ) & #load ( "To" ; 50) )
+***
+où la vakeur stockée dans $$NumRange est le code suivant :
+Let ( [
+	Atr_1=$z_Arg[GetValue($Param;1)];$z_Arg[GetValue($Param;1)]="";
+	Atr_2=$z_Arg[GetValue($Param;2)];$z_Arg[GetValue($Param;2)]="" 
+	];
+	If( GetAsNumber(To) > GetAsNumber(From); 
+		GetAsNumber(From) & ¶ & NumRange(GetAsNumber(From) + 1; To); 
+		GetAsNumber(From)
+	)
+)
+	
+*/
+
+Definir (
+$Param = ParamS
+;
+//Si la variable $$_nomFonction contient une chaîne de texte commençant par un "Let", il convient d'évaluer l'expression
+Cas (
+MotsDebut ( Expression ; 1 ) = "Let" ;
+Evaluation 
+( Expression )
+;
+//Si la variable $$_nomFonction contient un numéro, ce numéro correspond à l'index d'une fonction personnalisée présente dans la bibliothèque interne du fichier FileMaker.
+On peut exploiter cet index pour lancer cette fonction personnalisée, au travers la fonction dédiée.
+L'utilitaire de gestion du module mod_CustomFunctions vous permet de constituer ces index.
+
+cfCallFunctionByIndex ( $$_nomFonction ) 
+)
+)
+
+/*
+
+Il faur revoir cette fonction à mon avis, elle est mal construite.
+
+On doit pouvoir invoquer ça sous la forme cfCall ( cfCallFunctionByID ( $$_nomFonction ) )
+
+*/
