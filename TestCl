@@ -1,0 +1,58 @@
+Let ([
+Start= $z_Arg[GetValue ( $Param  ; 1 )] ;$z_Arg[GetValue ( $Param  ; 1 )] = "" ; $z_Gfn[GetValue ( $Param  ; 1 )] = "" ;
+End= $z_Arg[GetValue (  $Param ; 2 )];$z_Arg[GetValue ( $Param  ; 2 )] = "" ; $z_Gfn[GetValue ( $Param  ; 2 )] = "" ;
+Function= $z_Arg[GetValue (  $Param  ; 3 )];$z_Arg[GetValue ( $Param  ; 3 )] = "" ; $z_Gfn[GetValue ( $Param  ; 3 )] = ""
+];
+
+Case (
+
+            IsEmpty ( Start ) or IsEmpty ( End ) or End < 1 or Start < 1; "";
+          
+            Let ( [
+                         Start =  GetAsNumber ( Start );
+                         End =   GetAsNumber ( End );
+                         Diff = End - Start + 1;
+                         V =  Case ( Left ( Get ( ApplicationVersion ) ; 2 ) = "Go" ; 1 ; Left ( Get ( ApplicationVersion ) ; 2 ) = "Se" ; 2 ; Left ( Get ( ApplicationVersion ) ; 2 ) = "We" ; 3 ; 0 ) ;
+                         PL = Choose ( V ; 1700  ; 400 ; 300 ; 900 ) ;
+
+                         End =   Case ( ( Diff > Choose ( V ; 500000  ; 150000 ; 120000 ; 250000 ) ) or ( End < Start ) or IsEmpty ( Start ) or IsEmpty ( End ); "Error"; End );
+                         $null = "\"\"";
+
+                         iter = Let ( $CLExeCount = $CLExeCount + 1 ; $CLExeCount & PatternCount ( Function ; "CustomList" ) + 1 ) ;
+                         $CLn[ iter ]  = Start - 1;
+
+                         Calc = Case ( Diff ≥ ( PL - 10 ) ; ( PL / 10 )  ; Floor ( Diff / 10 ) + 1 );
+
+                         First = Substitute ( ( 10 ^ Calc ) - 1; 9; "__________" ) ;  
+                         X = Floor ( Diff / PL );
+                         $CLRemainder[ iter ]  = Diff - ( X * PL );
+
+                         FunctionR = Case ( IsEmpty ( Function ); "CLNum"; Substitute ( Function; ["[n]"; "CLNum"] ; [¶ ; ""] ) );
+
+                         $CLExecute[ iter ] = Case ( Left ( Substitute ( Lower ( Function ); ["definir"; "Let" ]; [" "; ""]; ["¶"; ""]); 5 ) = "Let([";
+                                            Substitute (  First ; [ "_";  "Let([$CLn[" & iter & "]=$CLn[" & iter & "]+1;CLNum=$CLn[" & iter & "];" &
+                                            Replace ( FunctionR; 1; Position ( FunctionR; "["; 1; 1 ); "" ) & "&\¶&¶"] );
+                                            Substitute ( First ; [ "_";  "Let([$CLn[" & iter & "]=$CLn[" & iter & "]+1;CLNum=$CLn[" & iter & "]];" & FunctionR & ")&\¶&¶"] ) );
+  
+                          Final = Case ( X > 0; Substitute ( ( 10 ^ X ) - 1; 9; "Evaluate ( $CLExecute[" & iter & "] & $null ) & " ) ) &
+                                      "Evaluate( LeftValues ( $CLExecute[" & iter & "] ; $CLRemainder[" & iter & "]  ) & $null ) & " & $null;
+
+                          Result  =   Case ( End <> "Error"; Substitute ( "#^#" & Evaluate  ( Final ) & "#^#";
+                                           [ "#^#|#^#"; "¶" ]; [ "¶"; "¶#^#" ]; [ "#^#¶"; "" ]; [ "¶#^#"; "¶" ]; [ "¶#^#"; "" ]; [ "#^#"; "" ] ) ) ;
+                          $CLExecute[ iter ]  = "" 
+
+            ];
+
+     Case (
+          ( Length ( Result ) and ( Result = Filter ( Result; "?" ))) or End =  "Error";
+          Let ([
+                    /*****DEBUGGING MODE*****/   // Case Debug = 1, returned error "[error_CL], Number, Name and Calculation error" ,if Debug  <> 1, returned error is "?"
+                    Debug = "1";
+                    Write = Substitute ( Function; "[n]"; 1 ); NumError = EvaluationError ( Evaluate ( Write ) );
+                    Error = "[" & NumError & "] " & "Unlisted error | Unknown error, check calculation or check \"Start\" and \"End\" ¶102 | Field is missing¶103 | Relationship is missing¶106 | Table is missing¶113 | Function is missing¶1204 | Number, text constant, field name or \"(\" expected¶1205 | Comment is not terminated with \"*/\"¶1206 | Text constant must end with a quotation mark¶1207 | Unbalanced parenthesis¶1208 | Operator or function missing or \"(\" not expected¶1211 | List usage is not allowed in this function¶1212 | An operator (for example, +, -, *,;) is expected here¶1215 | This parameter is an invalid Get function parameter";
+                    Pos = ValueCount ( Left ( Error; Position ( Error; NumError & " "; 1; 1 ) ) )
+     ];
+          Case ( Debug = 1; "[Error_CL]  | Return error : " & GetValue ( Error; Case ( Pos = 0; 1; Pos ) ) & ¶ & TextStyleAdd ( "Calculation ( for [n] = 1 ) : "; Bold ) & Write; "?" ));
+  Result ))
+)
+)
