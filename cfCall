@@ -15,11 +15,9 @@ cfCall a été principalement conçue pour exécuter un bloc de code corresponda
 - présente ou pas dans la librairie interne des fonctions du fichier FileMaker. 
 - récursive ou standard.
 *
-Fonctions de la bibliothèque FMdynamix :
-La fonction cfGetFunctionExpression ( FunctionName ) est intégrée au code de la fonction cfCall et doit donc être 
-intégrée également ( cf @see )
-La fonction #load ( paramDescription ; Param ) n'est pas indispensable mais il est cependant fortement recommandé
-de l'utiliser ( cf @see ).
+Injection de dépendances :
+cfCall ne référence aucune fonction non native de FileMaker.
+La fonction #load ( paramDescription ; Param ) n'est pas indispensable mais il est cependant fortement recommandé de l'utiliser ( cf @see ).
 *
 Par extension, cfCall peut exécuter toute formule représentée sous la forme d'une chaîne de caractères, utilisant
 des fonctions de FileMaker, sous réserve que cette expression soit au préalable encapsulée dans un bloc de code
